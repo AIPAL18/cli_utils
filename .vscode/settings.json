@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        ".credits": "plaintext",
-        "*.s": "assembly",
-        "parser.h": "c"
-    }
-}
