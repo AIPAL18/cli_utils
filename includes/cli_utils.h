@@ -1,6 +1,11 @@
-#include "parser.h"
+#ifndef CLI_UTILS
+#define CLI_UTILS
 
-#include <string.h>
+#include <stdbool.h>
+
+#include "../src/app.h"
+#include "../src/arg.h"
+#include "../src/linked_list.h"
 
 int get_exe_index_from_path(char* path)
 {
@@ -17,8 +22,9 @@ int get_exe_index_from_path(char* path)
     return last_index + 1;
 }
 
-
-char* get_exe(char* path)
+char* get_app_name(char* path)
 {
     return &path[get_exe_index_from_path(path)];
 }
+
+#endif // CLI_UTILS
