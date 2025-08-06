@@ -1,6 +1,8 @@
 #ifndef CLI_UTILS_ARG
 #define CLI_UTILS_ARG
 
+#include <stdbool.h>
+
 // Keyword argument
 typedef struct
 {

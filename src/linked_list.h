@@ -23,9 +23,9 @@ typedef struct inner_flag_node {
     struct inner_flag_node * next;
 } Flag_ll;
 
-#define default_head ((void*)0)
+#define default_head NULL
 
-void print_list_kwarg(KWArg_ll * head) {
+void display_list_kwarg(KWArg_ll * head) {
     KWArg_ll * current = head;
 
     printf("[ ");
@@ -37,7 +37,7 @@ void print_list_kwarg(KWArg_ll * head) {
     
     printf("]\n");
 }
-void print_list_arg(Arg_ll * head) {
+void display_list_arg(Arg_ll * head) {
     Arg_ll * current = head;
 
     printf("[ ");
@@ -49,7 +49,7 @@ void print_list_arg(Arg_ll * head) {
     
     printf("]\n");
 }
-void print_list_flag(Flag_ll * head) {
+void display_list_flag(Flag_ll * head) {
     Flag_ll * current = head;
 
     printf("[ ");
@@ -100,7 +100,7 @@ if (*head == NULL) {
 }
 void pushr_flag(Flag_ll **head, Flag* val) {
 if (*head == NULL) {
-        *head = (Flag_ll*)malloc(sizeof(Flag_ll));
+        *head = malloc(sizeof(Flag_ll));
         (*head)->val = val;
         (*head)->next = NULL;
         return;
@@ -112,34 +112,32 @@ if (*head == NULL) {
     }
 
     // now we can add a new variable 
-    current->next = (Flag_ll *) malloc(sizeof(Flag_ll));
+    current->next = malloc(sizeof(Flag_ll));
     current->next->val = val;
     current->next->next = NULL;
 }
 
-void pushl_kwarg(KWArg_ll ** head, KWArg* val) {
-    KWArg_ll * new_node;
-    new_node = (KWArg_ll *) malloc(sizeof(KWArg_ll));
+KWArg* seek_kwarg(KWArg_ll ** head) {
+    if (*head == NULL) {
+        return NULL;
+    }
 
-    new_node->val = val;
-    new_node->next = *head;
-    *head = new_node;
+    return (*head)->val;
 }
-void pushl_arg(Arg_ll ** head, Arg* val) {
-    Arg_ll * new_node;
-    new_node = (Arg_ll *) malloc(sizeof(Arg_ll));
+Arg* seek_arg(Arg_ll ** head) {
+    if (*head == NULL) {
+        return NULL;
+    }
 
-    new_node->val = val;
-    new_node->next = *head;
-    *head = new_node;
+    return (*head)->val;
 }
-void pushl_flag(Flag_ll ** head, Flag* val) {
-    Flag_ll * new_node;
-    new_node = (Flag_ll *) malloc(sizeof(Flag_ll));
+Flag* seek_flag(Flag_ll ** head) {
+    if (*head == NULL) {
+        printf("sould stop\n");
+        return NULL;
+    }
 
-    new_node->val = val;
-    new_node->next = *head;
-    *head = new_node;
+    return (*head)->val;
 }
 
 KWArg* pop_kwarg(KWArg_ll ** head) {
@@ -177,6 +175,7 @@ Flag* pop_flag(Flag_ll ** head) {
     Flag_ll * next_node = NULL;
 
     if (*head == NULL) {
+        printf("MUST STOP NOW");
         return NULL;
     }
 
@@ -220,6 +219,31 @@ void free_list_flag(Flag_ll * head) {
 }
 
 /*
+
+void pushl_kwarg(KWArg_ll ** head, KWArg* val) {
+    KWArg_ll * new_node;
+    new_node = (KWArg_ll *) malloc(sizeof(KWArg_ll));
+
+    new_node->val = val;
+    new_node->next = *head;
+    *head = new_node;
+}
+void pushl_arg(Arg_ll ** head, Arg* val) {
+    Arg_ll * new_node;
+    new_node = (Arg_ll *) malloc(sizeof(Arg_ll));
+
+    new_node->val = val;
+    new_node->next = *head;
+    *head = new_node;
+}
+void pushl_flag(Flag_ll ** head, Flag* val) {
+    Flag_ll * new_node;
+    new_node = (Flag_ll *) malloc(sizeof(Flag_ll));
+
+    new_node->val = val;
+    new_node->next = *head;
+    *head = new_node;
+}
 
 KWArg* remove_last_kwarg(KWArg_ll * head) {
     KWArg* retval = NULL;

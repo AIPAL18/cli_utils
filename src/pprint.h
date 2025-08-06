@@ -6,39 +6,33 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-int is_break_char(char c) {
-    return c == ' ' || c == '-' || c == '_';
+int is_break_char(char c) { // break on them
+    return c == ' ';
 }
 
-int is_soft_break(char c) {
-    return c == ' ' || c == '\t';
+int is_soft_break(char c) { // will be deleted if we break on them
+    return c == ' ';
 }
 
-void pprint_wrap(const char *input, int width, ...) {
+void pprint_usage(const char *input, int _width, size_t indent)
+{
+    int width = _width - indent;
+    if (width <= 10) {
+        printf("%s", input);
+        return;
+    }
     int len = strlen(input);
     int start = 0;
-
-    // Dans l'ordre:
-    va_list args;
-
-    va_start(args, width);
-    char* temp;
-    while (true)
-    {
-        temp = va_arg(args, char*);
-        if (!temp) {
-            break;
-        }
-        else {
-            printf("%s", temp);
-        }
-    }
-    va_end(args);
+    bool just_break = false;
 
     while (start < len) { // Chat-GPT
-        if (start >= len) break;
-
         int end = start + width;
+
+        if (just_break)
+        {
+            just_break = !just_break;
+            for (size_t i = 0; i <= indent; ++i) printf(" ");
+        }
 
         if (end >= len) {
             // Fin de texte : on imprime tout le reste
@@ -61,6 +55,7 @@ void pprint_wrap(const char *input, int width, ...) {
             }
             printf("%.*s\n", word_end - start, input + start);
             start = word_end;
+            just_break = true;
         } else {
             // Trouvé un séparateur : on imprime jusqu'à ce point
             // On exclut les espaces en fin de ligne
@@ -73,20 +68,52 @@ void pprint_wrap(const char *input, int width, ...) {
 
             printf("%.*s\n", print_len, input + start);
             start = split + 1; // saut du séparateur
+            just_break = true;
         }
     }
 }
 
-char* format(const char* format, ...)  // you must free the return pointer !
+char* format(const char* _format, ...)
+// you must free the return pointer !
+// only char arguments to be able to compute the total size !
 {
-    char* string = NULL;
-    va_list args;
+    va_list args, args_copy;
 
-    va_start(args, format);
-    if (vsprintf_s(string, format, args) < 0) { //this is for logging, so failed allocation is not fatal
+    va_start(args, _format);
+    va_copy(args_copy, args);
+
+    // compute length for malloc
+    size_t length = strlen(_format) + 1; // for /0
+
+    for (int i = 0; _format[i] != '\0'; ++i)
+    {
+        if (_format[i] == '%' && _format[i + 1] != '\0')
+        {
+            ++i;
+            switch (_format[i])
+            {
+            case 'c':
+                (void)va_arg(args, int);
+                ++length;
+                break;
+            case 's':
+                char* arg = va_arg(args, char*);
+                length += strlen(arg);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    char* string = malloc(length);
+
+    // actual formating
+    if (vsprintf(string, _format, args_copy) < 0) {
         printf("Error while formating a message: Memory allocation failed.\n");
     }
     va_end(args);
+    va_end(args_copy);
     
     return string;
 }
@@ -95,7 +122,7 @@ char* format(const char* format, ...)  // you must free the return pointer !
 //     const char *text = "Ceci-est_un_exemple_de_chaine_tres-longue sans interruption notable mais avec quelques separateurs_intelligents.";
 //     int largeur = 20;
 //     printf("                    |\n");
-//     pprint_wrap(text, largeur);
+//     pprint(text, largeur);
 //     return 0;
 // }
 

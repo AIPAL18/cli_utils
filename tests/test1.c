@@ -24,18 +24,18 @@ int main(int argc, char** argv)
         .description = "Text that is going to be print out",
     };
 
-    App_t app = {
-        .app_name = "Super printer (eko)", 
-        .app_exe = "eko", 
-        .version = "0.0.1", default_head
-    };
-
-    push_flag(&app, &reverse);
-    push_kwarg(&app, &color);
-    push_arg(&app, &text);
-    add_default_arg(&app);
+    App_t* app = new_app(
+        "Super printer (eko)",
+        "eko",
+        "0.0.1"
+    );
     
-    parse(&app, argc, argv);
+    push_flag(app, &reverse);
+    push_kwarg(app, &color);
+    push_arg(app, &text);
+    add_default_arg(app);
+    
+    parse(app, argc, argv);
     
     free_app(app);
 
