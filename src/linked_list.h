@@ -18,6 +18,11 @@ typedef struct inner_arg_node {
     struct inner_arg_node * next;
 } Arg_ll;
 
+typedef struct inner_flag_node {
+    Flag* val;
+    struct inner_flag_node * next;
+} Flag_ll;
+
 #define default_head ((void*)0)
 
 void print_list_kwarg(KWArg_ll * head) {
@@ -26,7 +31,7 @@ void print_list_kwarg(KWArg_ll * head) {
     printf("[ ");
 
     while (current != NULL) {
-        printf("\"%d\" ", current->val->name);
+        printf("\"%s\" ", current->val->name);
         current = current->next;
     }
     
@@ -38,7 +43,19 @@ void print_list_arg(Arg_ll * head) {
     printf("[ ");
 
     while (current != NULL) {
-        printf("\"%d\" ", current->val->name);
+        printf("\"%s\" ", current->val->name);
+        current = current->next;
+    }
+    
+    printf("]\n");
+}
+void print_list_flag(Flag_ll * head) {
+    Flag_ll * current = head;
+
+    printf("[ ");
+
+    while (current != NULL) {
+        printf("\"%s\" ", current->val->name);
         current = current->next;
     }
     
@@ -81,6 +98,24 @@ if (*head == NULL) {
     current->next->val = val;
     current->next->next = NULL;
 }
+void pushr_flag(Flag_ll **head, Flag* val) {
+if (*head == NULL) {
+        *head = (Flag_ll*)malloc(sizeof(Flag_ll));
+        (*head)->val = val;
+        (*head)->next = NULL;
+        return;
+    }
+
+    Flag_ll * current = *head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    // now we can add a new variable 
+    current->next = (Flag_ll *) malloc(sizeof(Flag_ll));
+    current->next->val = val;
+    current->next->next = NULL;
+}
 
 void pushl_kwarg(KWArg_ll ** head, KWArg* val) {
     KWArg_ll * new_node;
@@ -93,6 +128,14 @@ void pushl_kwarg(KWArg_ll ** head, KWArg* val) {
 void pushl_arg(Arg_ll ** head, Arg* val) {
     Arg_ll * new_node;
     new_node = (Arg_ll *) malloc(sizeof(Arg_ll));
+
+    new_node->val = val;
+    new_node->next = *head;
+    *head = new_node;
+}
+void pushl_flag(Flag_ll ** head, Flag* val) {
+    Flag_ll * new_node;
+    new_node = (Flag_ll *) malloc(sizeof(Flag_ll));
 
     new_node->val = val;
     new_node->next = *head;
@@ -129,6 +172,21 @@ Arg* pop_arg(Arg_ll ** head) {
 
     return retval;
 }
+Flag* pop_flag(Flag_ll ** head) {
+    Flag* retval = NULL;
+    Flag_ll * next_node = NULL;
+
+    if (*head == NULL) {
+        return NULL;
+    }
+
+    next_node = (*head)->next;
+    retval = (*head)->val;
+    free(*head);
+    *head = next_node;
+
+    return retval;
+}
 
 void free_list_kwarg(KWArg_ll * head) {
     KWArg_ll * current = head;
@@ -150,6 +208,16 @@ void free_list_arg(Arg_ll * head) {
         current = next;
     }
 }
+void free_list_flag(Flag_ll * head) {
+    Flag_ll * current = head;
+    Flag_ll * next;
+
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
 
 /*
 
@@ -162,13 +230,13 @@ KWArg* remove_last_kwarg(KWArg_ll * head) {
         return retval;
     }
 
-    // /* get to the second to last node in the list 
+    //  get to the second to last node in the list 
     KWArg_ll * current = head;
     while (current->next->next != NULL) {
         current = current->next;
     }
 
-    // /* now current points to the second to last item of the list, so let's remove current->next 
+    //  now current points to the second to last item of the list, so let's remove current->next 
     retval = current->next->val;
     free(current->next);
     current->next = NULL;
@@ -176,20 +244,20 @@ KWArg* remove_last_kwarg(KWArg_ll * head) {
 }
 Arg* remove_last_arg(Arg_ll * head) {
     Arg* retval = NULL;
-    // /* if there is only one item in the list, remove it 
+    //  if there is only one item in the list, remove it 
     if (head->next == NULL) {
         retval = head->val;
         free(head);
         return retval;
     }
 
-    // /* get to the second to last node in the list 
+    //  get to the second to last node in the list 
     Arg_ll * current = head;
     while (current->next->next != NULL) {
         current = current->next;
     }
 
-    // /* now current points to the second to last item of the list, so let's remove current->next 
+    //  now current points to the second to last item of the list, so let's remove current->next 
     retval = current->next->val;
     free(current->next);
     current->next = NULL;
