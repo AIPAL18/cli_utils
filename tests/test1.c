@@ -1,4 +1,4 @@
-// gcc -std=c23 -Wall -Wextra -Werror -pedantic -g .\tests\test1.c -o .\test.exe
+// c
 
 #include <stdio.h>
 

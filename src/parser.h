@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "globals.h"
+#include "display/color.h"
 
 typedef struct
 {
@@ -142,13 +143,13 @@ void parse(App_t* app, const int argc, char** argv) // FIXME: make it non destru
                         && (a = get_kwarg_from_name(app, &arg[2]))
                 )) {
                     error = true;
-                    printf("Unknown argument: %s\n\n", &arg[2]);
+                    printf(MAGENTA("Unknown argument: ") "%s\n\n", &arg[2]);
                     continue;
                 }
                 if (!is_value_next(&cg))
                 {
                     error = true;
-                    printf("%s expects a value\n\n", a->name);
+                    printf(MAGENTA("%s expects a value\n\n"), a->name);
                     break;
                 }
                 a->value = argv[++i];
@@ -178,23 +179,22 @@ void parse(App_t* app, const int argc, char** argv) // FIXME: make it non destru
                     && (f = get_flag(app, arg[1]))
                 )) {
                     error = true;
-                    printf("Unknown flag: %c\n\n", arg[1]);
+                    printf(MAGENTA("Unknown flag: ") "%c\n\n", arg[1]);
                     continue;
                 }
                 else {
                     Flag_ll_push(&pa.flag_head, f);
-                    printf("Flag {\n\t.symbol='%c'\n}\n", f->symbol);
                     continue;
                 }
             }
             else if (!eol(arg, 1)) {  // single dash and multiple chars
                 error = true;
-                printf("Unknown argument: %s\n", &arg[2]);
-                printf("Hint: try -%s\n\n", arg);
+                printf(MAGENTA("Unknown argument:") "%s\n", &arg[2]);
+                printf(CYAN("Hint: ") "try -%s\n\n", arg);
                 continue;
             }
             else { // empty
-                printf("Warning: empty argument\n");
+                printf(YELLOW("Warning: ") "empty argument\n\n");
                 continue;
             }
         }
@@ -202,7 +202,7 @@ void parse(App_t* app, const int argc, char** argv) // FIXME: make it non destru
             if (Arg_ll_empty(&next_pos_arg))
             {
                 error = true;
-                printf("Too many positionnal arguments: %s\n", arg);
+                printf(MAGENTA("Too many positionnal arguments: %s\n\n"), arg);
                 continue;
             }
             Arg* a = Arg_ll_peek(&next_pos_arg);
@@ -217,20 +217,19 @@ void parse(App_t* app, const int argc, char** argv) // FIXME: make it non destru
     if (!(KWArg_ll_empty(&rkwargs) && Arg_ll_empty(&next_pos_arg)))
     {
         error = true;
-        printf("Not enough arguments\n");
-        
-        printf("Please provide:\n");
+        printf(MAGENTA("Argument(s) missing ! ") "Please provide:\n");
+
         while (!KWArg_ll_empty(&rkwargs))
         {
             KWArg* kwarg = KWArg_ll_peek(&rkwargs);
             rkwargs = rkwargs->next;
-            printf("\t%s\n", kwarg->name);
+            printf("  * %s\n", kwarg->name);
         }
         while (!Arg_ll_empty(&next_pos_arg))
         {
             Arg* arg = Arg_ll_peek(&next_pos_arg);
             next_pos_arg = next_pos_arg->next;
-            printf("\t%s\n", arg->name);
+            printf("  * %s\n", arg->name);
         }
         printf("\n");
     }

@@ -58,6 +58,14 @@ void push_flag(App_t* app, Flag* arg)
     // isalpha()
     Flag_ll_push(&app->flag_head, arg);
 }
+// append flag into app
+void append_flag(App_t* app, Flag* arg)
+{
+    // symbol can be already used by a flag
+    // symbol can be already used by a kwarg
+    // isalpha()
+    Flag_ll_append(&app->flag_head, arg);
+}
 // push keyword arg into app
 void push_kwarg(App_t* app, KWArg* arg)
 {
@@ -65,6 +73,14 @@ void push_kwarg(App_t* app, KWArg* arg)
     // symbol can be already used by a kwarg
     // is_valid_identifer() for its name
     KWArg_ll_push(&app->kwarg_head, arg);
+}
+// append keyword arg into app
+void append_kwarg(App_t* app, KWArg* arg)
+{
+    // symbol can be already used by a flag
+    // symbol can be already used by a kwarg
+    // is_valid_identifer() for its name
+    KWArg_ll_append(&app->kwarg_head, arg);
 }
 // push required keyword arg into app
 void push_rkwarg(App_t* app, KWArg* arg)
@@ -75,11 +91,26 @@ void push_rkwarg(App_t* app, KWArg* arg)
     ++app->_arg_nb;
     KWArg_ll_push(&app->rkwarg_head, arg);
 }
+// append required keyword arg into app
+void append_rkwarg(App_t* app, KWArg* arg)
+{
+    // symbol can be already used by a flag
+    // symbol can be already used by a kwarg
+    // is_valid_identifer() for its name
+    ++app->_arg_nb;
+    KWArg_ll_append(&app->rkwarg_head, arg);
+}
 // push arg into app
 void push_arg(App_t* app, Arg* arg)
 {
     ++app->_arg_nb;
     Arg_ll_push(&app->arg_head, arg);
+}
+// append arg into app
+void append_arg(App_t* app, Arg* arg)
+{
+    ++app->_arg_nb;
+    Arg_ll_append(&app->arg_head, arg);
 }
 
 void free_app(App_t* app)

@@ -16,6 +16,25 @@ bool str_equal(const char* a, const char* b)
 NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
 */
 
+#define NEW_LL_DD(type) \
+    type* type##_ll_pop(type##_ll ** head) { \
+        if (*head == end_node) \
+        { \
+            return NULL; \
+        } \
+        type *retval; \
+        type##_ll *first_node = *head; \
+        while (first_node->next != end_node) \
+        { \
+            if (first_node->next->next == end_node) break; \
+            first_node = first_node->next; \
+        } \
+        retval = first_node->next->val; \
+        free(first_node->next); \
+        first_node->next = end_node; \
+        return retval; \
+    }
+
 #define NEW_LL(type) \
     typedef struct type##_inner { \
         type* val; \
@@ -26,6 +45,10 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
     } \
     void type##_ll_display(type##_ll* head) { \
         type##_ll* current = head; \
+        if (head == end_node) { \
+            printf("<]\n");  \
+            return; \
+        } \
         printf("<"); \
         while (current != end_node) { \
             printf("\"%s\" ", current->val->name); \
@@ -40,6 +63,20 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         new_node->next = *head; \
         *head = new_node; \
     } \
+    void type##_ll_append(type##_ll** head, type* val) { \
+        type##_ll *new_node = malloc(sizeof(type##_ll)); \
+        new_node->val = val; \
+        new_node->next = end_node; \
+        if (*head == end_node) { \
+            *head = new_node; \
+            return; \
+        } \
+        type##_ll *current = *head; \
+        while (current->next != end_node) { \
+            current = current->next; \
+        } \
+        current->next = new_node; \
+    } \
     type* type##_ll_peek(type##_ll ** head) { \
         if (*head == end_node) { \
             return NULL; \
@@ -47,6 +84,24 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         return (*head)->val; \
     } \
     type* type##_ll_pop(type##_ll ** head) { \
+        if (*head == end_node) return NULL; \
+        type *retval; \
+        if ((*head)->next == end_node) { \
+            retval = (*head)->val; \
+            free(*head); \
+            *head = end_node; \
+            return retval; \
+        } \
+        type##_ll *current = *head; \
+        while (current->next->next != end_node) { \
+            current = current->next; \
+        } \
+        retval = current->next->val; \
+        free(current->next); \
+        current->next = end_node; \
+        return retval; \
+    } \
+    type* type##_ll_get(type##_ll ** head) { \
         type* retval = NULL; \
         type##_ll * next_node = end_node; \
         if (*head == end_node) { \
@@ -56,6 +111,24 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         retval = (*head)->val; \
         free(*head); \
         *head = next_node; \
+        return retval; \
+    } \
+    type* type##_ll_pop_by_value(type##_ll ** head, type* value) { \
+        if (*head == end_node) return NULL; \
+        if (str_equal((*head)->val->name, value->name)) { \
+            return type##_ll_pop(head); \
+        } \
+        type* retval = NULL; \
+        type##_ll* current = *head; \
+        type##_ll* temp_node = end_node; \
+        while (current != end_node && !str_equal(current->val->name, value->name)) { \
+            current = current->next; \
+        } \
+        if (current == end_node) return NULL; \
+        temp_node = current->next; \
+        retval = temp_node->val; \
+        current->next = temp_node->next; \
+        free(temp_node); \
         return retval; \
     } \
     void type##_ll_free(type##_ll* head) { \
@@ -98,41 +171,5 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         } \
         return new_head; \
     } \
-    type* type##_ll_pop_by_value(type##_ll ** head, type* value) { \
-        if (*head == end_node) return NULL; \
-        if (str_equal((*head)->val->name, value->name)) { \
-            return type##_ll_pop(head); \
-        } \
-        type* retval = NULL; \
-        type##_ll* current = *head; \
-        type##_ll* temp_node = end_node; \
-        while (current != end_node && !str_equal(current->val->name, value->name)) { \
-            current = current->next; \
-        } \
-        if (current == end_node) return NULL; \
-        temp_node = current->next; \
-        retval = temp_node->val; \
-        current->next = temp_node->next; \
-        free(temp_node); \
-        return retval; \
-    } \
-
-    /*
-    void type##_ll_append(type##_ll** head, type* val) { \
-        if (*head == end_node) { \
-            *head = (type##_ll*)malloc(sizeof(type##_ll)); \
-            (*head)->val = val; \
-            (*head)->next = end_node; \
-            return; \
-        } \
-        type##_ll* current = *head; \
-        while (current->next != end_node) { \
-            current = current->next; \
-        } \
-        current->next = malloc(sizeof(type##_ll)); \
-        current->next->val = val; \
-        current->next->next = end_node; \
-    } \
-    */
 
 #endif // CLI_UTILS_META_LL
