@@ -3,9 +3,11 @@
 
 #include <stdbool.h>
 
+#include "../src/globals.h"
+#include "../src/parser.h"
 #include "../src/app.h"
 #include "../src/arg.h"
-#include "../src/linked_list.h"
+#include "../src/ll/linked_list.h"
 
 int get_exe_index_from_path(char* path)
 {

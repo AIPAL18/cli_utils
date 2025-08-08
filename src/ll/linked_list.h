@@ -1,13 +1,61 @@
 #ifndef CLI_UTILS_LL
 #define CLI_UTILS_LL
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "meta_ll.h"
+#include "../arg.h"
 
-#include "arg.h"
+NEW_LL(Flag)
+
+NEW_LL(KWArg)
+
+// KWArg* KWArg_ll_peek_by_value(KWArg_ll ** head, KWArg* value) {
+//     if (*head == end_node) {
+//         return NULL;
+//     }
+//     if (str_equal((*head)->val->name, value->name)) {
+//         return KWArg_ll_peek(head);
+//     }
+//     KWArg_ll* current = *head;
+
+//     while (current != end_node && !str_equal(current->val->name, value->name)) {
+//         current = current->next;
+//     }
+//     return KWArg_ll_peek(&current);
+// }
+
+// KWArg* KWArg_ll_pop_by_value(KWArg_ll ** head, KWArg* value) {
+//     if (*head == end_node) {
+//         return NULL;
+//     }
+//     if (str_equal((*head)->val->name, value->name)) {
+//         return KWArg_ll_pop(head);
+//     }
+//     KWArg* retval = NULL;
+//     KWArg_ll* current = *head;
+//     KWArg_ll* temp_node = end_node;
+
+//     while (current != end_node && !str_equal(current->val->name, value->name)) {
+//         current = current->next;
+//     }
+
+//     if (current == end_node) // not found
+//     {
+//         return NULL;
+//     }
+
+//     temp_node = current->next;
+//     retval = temp_node->val;
+//     current->next = temp_node->next;
+//     free(temp_node);
+
+//     return retval;
+// }
+
+NEW_LL(Arg)
 
 // https://www.learn-c.org/en/Linked_lists
 
+/*
 typedef struct inner_kwarg_node {
     KWArg* val;
     struct inner_kwarg_node * next;
@@ -22,8 +70,6 @@ typedef struct inner_flag_node {
     Flag* val;
     struct inner_flag_node * next;
 } Flag_ll;
-
-#define default_head NULL
 
 void display_list_kwarg(KWArg_ll * head) {
     KWArg_ll * current = head;
@@ -217,6 +263,7 @@ void free_list_flag(Flag_ll * head) {
         current = next;
     }
 }
+*/
 
 /*
 
