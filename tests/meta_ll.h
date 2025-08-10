@@ -16,13 +16,27 @@ bool str_equal(const char* a, const char* b)
 NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
 */
 
-#define NEW_LL(type) \
+#define NEW_LL(type, repr, free_val) \
     typedef struct type##_inner { \
         type* val; \
         struct type##_inner* next; \
     } type##_ll; \
     type##_ll* type##_ll_new() { \
         return end_node; \
+    } \
+    void type##_ll_free_node(type##_ll* node) { \
+        if(free_val) free(node->val); \
+        free(node); \
+        node = end_node; \
+    } \
+    void type##_ll_free(type##_ll* head) { \
+        type##_ll * current = head; \
+        type##_ll * next; \
+        while (current != end_node) { \
+            next = current->next; \
+            type##_ll_free_node(current); \
+            current = next; \
+        } \
     } \
     void type##_ll_display(type##_ll* head) { \
         type##_ll* current = head; \
@@ -32,7 +46,7 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         } \
         printf("<"); \
         while (current != end_node) { \
-            printf("\"%s\" ", current->val->name); \
+            printf("\"%s\" ", current->val->repr); \
             current = current->next; \
         } \
         printf("\b]\n"); \
@@ -69,8 +83,7 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         type *retval; \
         if ((*head)->next == end_node) { \
             retval = (*head)->val; \
-            free(*head); \
-            *head = end_node; \
+            type##_ll_free_node(*head); \
             return retval; \
         } \
         type##_ll *current = *head; \
@@ -78,48 +91,36 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
             current = current->next; \
         } \
         retval = current->next->val; \
-        free(current->next); \
-        current->next = end_node; \
+        type##_ll_free_node(current->next); \
         return retval; \
     } \
     type* type##_ll_get(type##_ll ** head) { \
-        type* retval = NULL; \
-        type##_ll * next_node = end_node; \
         if (*head == end_node) { \
             return NULL; \
         } \
-        next_node = (*head)->next; \
-        retval = (*head)->val; \
-        free(*head); \
-        *head = next_node; \
+        type##_ll * next_node = (*head)->next; \
+        type* retval = (*head)->val; \
+        type##_ll_free_node(*head); \
+        *head = next_node; /*Can we do that after head was freed ? Or should I just free head's value ?*/ \
         return retval; \
     } \
     type* type##_ll_pop_by_value(type##_ll ** head, type* value) { \
         if (*head == end_node) return NULL; \
-        if (str_equal((*head)->val->name, value->name)) { \
+        if (str_equal((*head)->val->repr, value->repr)) { \
             return type##_ll_pop(head); \
         } \
         type* retval = NULL; \
         type##_ll* current = *head; \
         type##_ll* temp_node = end_node; \
-        while (current != end_node && !str_equal(current->val->name, value->name)) { \
+        while (current != end_node && !str_equal(current->val->repr, value->repr)) { \
             current = current->next; \
         } \
         if (current == end_node) return NULL; \
         temp_node = current->next; \
         retval = temp_node->val; \
         current->next = temp_node->next; \
-        free(temp_node); \
+        type##_ll_free_node(temp_node); \
         return retval; \
-    } \
-    void type##_ll_free(type##_ll* head) { \
-        type##_ll * current = head; \
-        type##_ll * next; \
-        while (current != end_node) { \
-            next = current->next; \
-            free(current); \
-            current = next; \
-        } \
     } \
     bool type##_ll_empty(type##_ll** head) { \
         return (*head == end_node); \
@@ -138,9 +139,11 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         return len; \
     } \
     type##_ll* type##_ll_copy(type##_ll* head) { \
+        if (head == end_node) return end_node; \
         type##_ll* new_head = end_node; \
         type##_ll* tmp = end_node; \
         type##_ll* current = head; \
+        type##_ll* next; \
         while (current != end_node) { \
             type##_ll_push(&tmp, current->val); \
             current = current->next; \
@@ -148,7 +151,9 @@ NEW_LL must keep element ordered (push, pop, ...), because Arg is positionnal.
         current = tmp; \
         while (current != end_node) { \
             type##_ll_push(&new_head, current->val); \
-            current = current->next; \
+            next = current->next; \
+            type##_ll_free_node(current); \
+            current = next; \
         } \
         return new_head; \
     } \

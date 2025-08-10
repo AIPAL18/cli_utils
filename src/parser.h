@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "globals.h"
+#include "ll/meta_ll.h"
 #include "display/color.h"
 
 typedef struct
@@ -93,8 +94,20 @@ bool is_value_next(CharGrouper* cg)
     return cg->content[cg->row + 1][0] != '-';
 }
 
-void parse(App_t* app, const int argc, char** argv) // FIXME: make it non destructive for LLs (using the same principle as display) => remove all pop functions
+void parse(App_t* app, const int argc, char** argv) 
 {
+    /*
+    FIXME: make it non destructive for LLs using the same principle as display, or by making copies.
+    NOTE: I think that if I tokenise it before, and then I interpret it (in the first sense)
+    First:
+        * Token -> Symbol or Litteral
+    Then:
+        * Symbol is a flag
+        * Symbol is a kwarg so it expect a litteral after
+        * Litteral is not excpected by any kwarg, therefore it's a positionnal arg
+    At the end:
+        * Check that every required value has been provided.
+    */
     // init
 
     ParsedArgs pa = {
